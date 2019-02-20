@@ -1,0 +1,196 @@
+diff -ruN a/cmake/checks/lapack_check.cpp b/cmake/checks/lapack_check.cpp
+--- a/cmake/checks/lapack_check.cpp	2018-12-22 10:03:30.000000000 +0300
++++ b/cmake/checks/lapack_check.cpp	2019-02-13 01:10:44.373821000 +0300
+@@ -1,10 +1,12 @@
+-#include <complex.h>
++#include <complex>
++#define lapack_complex_float std::complex<float>
++#define lapack_complex_double std::complex<double>
+ #include "opencv_lapack.h"
+ 
+-static char* check_fn1 = (char*)sgesv_;
+-static char* check_fn2 = (char*)sposv_;
+-static char* check_fn3 = (char*)spotrf_;
+-static char* check_fn4 = (char*)sgesdd_;
++static char* check_fn1 = (char*)LAPACK_sgesv;
++static char* check_fn2 = (char*)LAPACK_sposv;
++static char* check_fn3 = (char*)LAPACK_spotrf;
++static char* check_fn4 = (char*)LAPACK_sgesdd;
+ 
+ int main(int argc, char* argv[])
+ {
+diff -ruN a/modules/core/src/hal_internal.cpp b/modules/core/src/hal_internal.cpp
+--- a/modules/core/src/hal_internal.cpp	2018-12-22 10:03:30.000000000 +0300
++++ b/modules/core/src/hal_internal.cpp	2019-02-13 13:49:34.094092400 +0300
+@@ -47,6 +47,8 @@
+ #ifdef HAVE_LAPACK
+ 
+ #include <complex.h>
++#define lapack_complex_float std::complex<float>
++#define lapack_complex_double std::complex<double>
+ #include "opencv_lapack.h"
+ 
+ #include <cmath>
+@@ -109,9 +111,9 @@
+         if(n == 1 && b_step == sizeof(fptype))
+         {
+             if(typeid(fptype) == typeid(float))
+-                sgesv_(&m, &n, (float*)a, &lda, piv, (float*)b, &m, info);
++                LAPACK_sgesv(&m, &n, (float*)a, &lda, piv, (float*)b, &m, info);
+             else if(typeid(fptype) == typeid(double))
+-                dgesv_(&m, &n, (double*)a, &lda, piv, (double*)b, &m, info);
++                LAPACK_dgesv(&m, &n, (double*)a, &lda, piv, (double*)b, &m, info);
+         }
+         else
+         {
+@@ -121,9 +123,9 @@
+             transpose(b, ldb, tmpB, m, m, n);
+ 
+             if(typeid(fptype) == typeid(float))
+-                sgesv_(&m, &n, (float*)a, &lda, piv, (float*)tmpB, &m, info);
++                LAPACK_sgesv(&m, &n, (float*)a, &lda, piv, (float*)tmpB, &m, info);
+             else if(typeid(fptype) == typeid(double))
+-                dgesv_(&m, &n, (double*)a, &lda, piv, (double*)tmpB, &m, info);
++                LAPACK_dgesv(&m, &n, (double*)a, &lda, piv, (double*)tmpB, &m, info);
+ 
+             transpose(tmpB, m, b, ldb, n, m);
+             delete[] tmpB;
+@@ -132,9 +134,9 @@
+     else
+     {
+         if(typeid(fptype) == typeid(float))
+-            sgetrf_(&m, &m, (float*)a, &lda, piv, info);
++            LAPACK_sgetrf(&m, &m, (float*)a, &lda, piv, info);
+         else if(typeid(fptype) == typeid(double))
+-            dgetrf_(&m, &m, (double*)a, &lda, piv, info);
++            LAPACK_dgetrf(&m, &m, (double*)a, &lda, piv, info);
+     }
+ 
+     if(*info == 0)
+@@ -162,9 +164,9 @@
+         if(n == 1 && b_step == sizeof(fptype))
+         {
+             if(typeid(fptype) == typeid(float))
+-                sposv_(L, &m, &n, (float*)a, &lda, (float*)b, &m, &lapackStatus);
++                LAPACK_sposv(L, &m, &n, (float*)a, &lda, (float*)b, &m, &lapackStatus);
+             else if(typeid(fptype) == typeid(double))
+-                dposv_(L, &m, &n, (double*)a, &lda, (double*)b, &m, &lapackStatus);
++                LAPACK_dposv(L, &m, &n, (double*)a, &lda, (double*)b, &m, &lapackStatus);
+         }
+         else
+         {
+@@ -173,9 +175,9 @@
+             transpose(b, ldb, tmpB, m, m, n);
+ 
+             if(typeid(fptype) == typeid(float))
+-                sposv_(L, &m, &n, (float*)a, &lda, (float*)tmpB, &m, &lapackStatus);
++                LAPACK_sposv(L, &m, &n, (float*)a, &lda, (float*)tmpB, &m, &lapackStatus);
+             else if(typeid(fptype) == typeid(double))
+-                dposv_(L, &m, &n, (double*)a, &lda, (double*)tmpB, &m, &lapackStatus);
++                LAPACK_dposv(L, &m, &n, (double*)a, &lda, (double*)tmpB, &m, &lapackStatus);
+ 
+             transpose(tmpB, m, b, ldb, n, m);
+             delete[] tmpB;
+@@ -184,9 +186,9 @@
+     else
+     {
+         if(typeid(fptype) == typeid(float))
+-            spotrf_(L, &m, (float*)a, &lda, &lapackStatus);
++            LAPACK_spotrf(L, &m, (float*)a, &lda, &lapackStatus);
+         else if(typeid(fptype) == typeid(double))
+-            dpotrf_(L, &m, (double*)a, &lda, &lapackStatus);
++            LAPACK_dpotrf(L, &m, (double*)a, &lda, &lapackStatus);
+     }
+ 
+     if(lapackStatus == 0) *info = true;
+@@ -226,17 +228,17 @@
+     }
+ 
+     if(typeid(fptype) == typeid(float))
+-        sgesdd_(mode, &m, &n, (float*)a, &lda, (float*)w, (float*)u, &ldu, (float*)vt, &ldv, (float*)&work1, &lwork, iworkBuf, info);
++        LAPACK_sgesdd(mode, &m, &n, (float*)a, &lda, (float*)w, (float*)u, &ldu, (float*)vt, &ldv, (float*)&work1, &lwork, iworkBuf, info);
+     else if(typeid(fptype) == typeid(double))
+-        dgesdd_(mode, &m, &n, (double*)a, &lda, (double*)w, (double*)u, &ldu, (double*)vt, &ldv, (double*)&work1, &lwork, iworkBuf, info);
++        LAPACK_dgesdd(mode, &m, &n, (double*)a, &lda, (double*)w, (double*)u, &ldu, (double*)vt, &ldv, (double*)&work1, &lwork, iworkBuf, info);
+ 
+     lwork = (int)round(work1); //optimal buffer size
+     fptype* buffer = new fptype[lwork + 1];
+ 
+     if(typeid(fptype) == typeid(float))
+-        sgesdd_(mode, &m, &n, (float*)a, &lda, (float*)w, (float*)u, &ldu, (float*)vt, &ldv, (float*)buffer, &lwork, iworkBuf, info);
++        LAPACK_sgesdd(mode, &m, &n, (float*)a, &lda, (float*)w, (float*)u, &ldu, (float*)vt, &ldv, (float*)buffer, &lwork, iworkBuf, info);
+     else if(typeid(fptype) == typeid(double))
+-        dgesdd_(mode, &m, &n, (double*)a, &lda, (double*)w, (double*)u, &ldu, (double*)vt, &ldv, (double*)buffer, &lwork, iworkBuf, info);
++        LAPACK_dgesdd(mode, &m, &n, (double*)a, &lda, (double*)w, (double*)u, &ldu, (double*)vt, &ldv, (double*)buffer, &lwork, iworkBuf, info);
+ 
+     if(!(flags & CV_HAL_SVD_NO_UV))
+         transpose_square_inplace(vt, ldv, n);
+@@ -287,18 +289,18 @@
+         if (k == 1 && b_step == sizeof(fptype))
+         {
+             if (typeid(fptype) == typeid(float))
+-                sgels_(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)b, &m, (float*)&work1, &lwork, info);
++                LAPACK_sgels(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)b, &m, (float*)&work1, &lwork, info);
+             else if (typeid(fptype) == typeid(double))
+-                dgels_(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)b, &m, (double*)&work1, &lwork, info);
++                LAPACK_dgels(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)b, &m, (double*)&work1, &lwork, info);
+ 
+             lwork = cvRound(work1); //optimal buffer size
+             std::vector<fptype> workBufMemHolder(lwork + 1);
+             fptype* buffer = &workBufMemHolder.front();
+ 
+             if (typeid(fptype) == typeid(float))
+-                sgels_(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)b, &m, (float*)buffer, &lwork, info);
++                LAPACK_sgels(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)b, &m, (float*)buffer, &lwork, info);
+             else if (typeid(fptype) == typeid(double))
+-                dgels_(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)b, &m, (double*)buffer, &lwork, info);
++                LAPACK_dgels(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)b, &m, (double*)buffer, &lwork, info);
+         }
+         else
+         {
+@@ -308,18 +310,18 @@
+             transpose(b, ldb, tmpB, m, m, k);
+ 
+             if (typeid(fptype) == typeid(float))
+-                sgels_(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)tmpB, &m, (float*)&work1, &lwork, info);
++                LAPACK_sgels(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)tmpB, &m, (float*)&work1, &lwork, info);
+             else if (typeid(fptype) == typeid(double))
+-                dgels_(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)tmpB, &m, (double*)&work1, &lwork, info);
++                LAPACK_dgels(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)tmpB, &m, (double*)&work1, &lwork, info);
+ 
+             lwork = cvRound(work1); //optimal buffer size
+             std::vector<fptype> workBufMemHolder(lwork + 1);
+             fptype* buffer = &workBufMemHolder.front();
+ 
+             if (typeid(fptype) == typeid(float))
+-                sgels_(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)tmpB, &m, (float*)buffer, &lwork, info);
++                LAPACK_sgels(mode, &m, &n, &k, (float*)tmpA, &ldtmpA, (float*)tmpB, &m, (float*)buffer, &lwork, info);
+             else if (typeid(fptype) == typeid(double))
+-                dgels_(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)tmpB, &m, (double*)buffer, &lwork, info);
++                LAPACK_dgels(mode, &m, &n, &k, (double*)tmpA, &ldtmpA, (double*)tmpB, &m, (double*)buffer, &lwork, info);
+ 
+             transpose(tmpB, m, b, ldb, k, m);
+         }
+@@ -327,18 +329,18 @@
+     else
+     {
+         if (typeid(fptype) == typeid(float))
+-            sgeqrf_(&m, &n, (float*)tmpA, &ldtmpA, (float*)dst, (float*)&work1, &lwork, info);
++            LAPACK_sgeqrf(&m, &n, (float*)tmpA, &ldtmpA, (float*)dst, (float*)&work1, &lwork, info);
+         else if (typeid(fptype) == typeid(double))
+-            dgeqrf_(&m, &n, (double*)tmpA, &ldtmpA, (double*)dst, (double*)&work1, &lwork, info);
++            LAPACK_dgeqrf(&m, &n, (double*)tmpA, &ldtmpA, (double*)dst, (double*)&work1, &lwork, info);
+ 
+         lwork = cvRound(work1); //optimal buffer size
+         std::vector<fptype> workBufMemHolder(lwork + 1);
+         fptype* buffer = &workBufMemHolder.front();
+ 
+         if (typeid(fptype) == typeid(float))
+-            sgeqrf_(&m, &n, (float*)tmpA, &ldtmpA, (float*)dst, (float*)buffer, &lwork, info);
++            LAPACK_sgeqrf(&m, &n, (float*)tmpA, &ldtmpA, (float*)dst, (float*)buffer, &lwork, info);
+         else if (typeid(fptype) == typeid(double))
+-            dgeqrf_(&m, &n, (double*)tmpA, &ldtmpA, (double*)dst, (double*)buffer, &lwork, info);
++            LAPACK_dgeqrf(&m, &n, (double*)tmpA, &ldtmpA, (double*)dst, (double*)buffer, &lwork, info);
+     }
+ 
+     if (m == n)

@@ -1,0 +1,30 @@
+diff -ruN a/cmake/OpenCVFindLibsGrfmt.cmake b/cmake/OpenCVFindLibsGrfmt.cmake
+--- a/cmake/OpenCVFindLibsGrfmt.cmake	2018-12-22 10:03:30.000000000 +0300
++++ b/cmake/OpenCVFindLibsGrfmt.cmake	2019-02-16 01:05:44.400103000 +0300
+@@ -185,11 +185,11 @@
+     include(FindPNG)
+     if(PNG_FOUND)
+       include(CheckIncludeFile)
+-      check_include_file("${PNG_PNG_INCLUDE_DIR}/libpng/png.h" HAVE_LIBPNG_PNG_H)
++      check_include_file("${PNG_PNG_INCLUDE_DIR}/png.h" HAVE_LIBPNG_PNG_H)
+       if(HAVE_LIBPNG_PNG_H)
+-        ocv_parse_header("${PNG_PNG_INCLUDE_DIR}/libpng/png.h" PNG_VERSION_LINES PNG_LIBPNG_VER_MAJOR PNG_LIBPNG_VER_MINOR PNG_LIBPNG_VER_RELEASE)
+-      else()
+         ocv_parse_header("${PNG_PNG_INCLUDE_DIR}/png.h" PNG_VERSION_LINES PNG_LIBPNG_VER_MAJOR PNG_LIBPNG_VER_MINOR PNG_LIBPNG_VER_RELEASE)
++      else()
++        ocv_parse_header("${PNG_PNG_INCLUDE_DIR}/libpng/png.h" PNG_VERSION_LINES PNG_LIBPNG_VER_MAJOR PNG_LIBPNG_VER_MINOR PNG_LIBPNG_VER_RELEASE)
+       endif()
+     endif()
+   endif()
+diff -ruN a/modules/imgcodecs/src/grfmt_png.cpp b/modules/imgcodecs/src/grfmt_png.cpp
+--- a/modules/imgcodecs/src/grfmt_png.cpp	2018-12-22 10:03:30.000000000 +0300
++++ b/modules/imgcodecs/src/grfmt_png.cpp	2019-02-16 01:11:23.607900000 +0300
+@@ -58,7 +58,7 @@
+ #  define _FILE_OFFSET_BITS 0
+ #endif
+ 
+-#ifdef HAVE_LIBPNG_PNG_H
++#ifndef HAVE_LIBPNG_PNG_H
+ #include <libpng/png.h>
+ #else
+ #include <png.h>
