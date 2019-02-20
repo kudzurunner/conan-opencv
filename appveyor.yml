@@ -21,7 +21,7 @@ install:
     appveyor DownloadFile https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_windows-exe -FileName cuda_8.0.61.2_windows.exe
     appveyor Downloadfile http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.5/cudnn-8.0-windows7-x64-v7.zip -FileName cudnn.zip
 
-    cuda_8.0.61_windows.exe -s compiler_8.0 cublas_8.0 cublas_dev_8.0 cudart_8.0 cufft_8.0 cufft_dev_8.0 curand_8.0 curand_dev_8.0 cusolver_8.0 cusolver_dev_8.0 cusparse_8.0 cusparse_dev_8.0 nvrtc_8.0 nvrtc_dev_8.0
+    cuda_8.0.61_windows.exe -s compiler_8.0 cublas_8.0 cublas_dev_8.0 cudart_8.0 cufft_8.0 cufft_dev_8.0 curand_8.0 curand_dev_8.0 cusolver_8.0 cusolver_dev_8.0 cusparse_8.0 cusparse_dev_8.0 nvrtc_8.0 nvrtc_dev_8.0 npp_8.0 npp_dev_8.0
     cuda_8.0.61.2_windows.exe -s cublas_8.0 cublas_dev_8.0
     7z x cudnn.zip
     copy cuda\include\cudnn.h "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include\"
