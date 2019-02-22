@@ -176,6 +176,7 @@ class OpencvConan(ConanFile):
         tools.untargz(filename=archive_name)
         os.remove(archive_name)
 
+        tools.patch(base_path=self.source_name, patch_file="patches/openblas.patch")
         tools.patch(base_path=self.source_name, patch_file="patches/lapack.patch")
         tools.patch(base_path=self.source_name, patch_file="patches/libpng.patch")
 

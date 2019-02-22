@@ -1,0 +1,38 @@
+diff -ruN a/cmake/OpenCVFindOpenBLAS.cmake b/cmake/OpenCVFindOpenBLAS.cmake
+--- a/cmake/OpenCVFindOpenBLAS.cmake	2018-12-22 10:03:30.000000000 +0300
++++ b/cmake/OpenCVFindOpenBLAS.cmake	2019-02-22 12:47:20.875334800 +0300
+@@ -44,6 +44,7 @@
+ #license and copyright terms herein.
+ 
+ SET(Open_BLAS_INCLUDE_SEARCH_PATHS
++  ${CONAN_INCLUDE_DIRS_OPENBLAS}	
+   $ENV{OpenBLAS_HOME}
+   $ENV{OpenBLAS_HOME}/include
+   /opt/OpenBLAS/include
+@@ -56,6 +57,7 @@
+ )
+ 
+ SET(Open_BLAS_LIB_SEARCH_PATHS
++        ${CONAN_LIB_DIRS_OPENBLAS}
+         $ENV{OpenBLAS}cd
+         $ENV{OpenBLAS}/lib
+         $ENV{OpenBLAS_HOME}
+@@ -73,6 +75,7 @@
+ 
+ FIND_PATH(OpenBLAS_INCLUDE_DIR NAMES cblas.h PATHS ${Open_BLAS_INCLUDE_SEARCH_PATHS} NO_DEFAULT_PATH)
+ FIND_LIBRARY(OpenBLAS_LIB NAMES openblas PATHS ${Open_BLAS_LIB_SEARCH_PATHS}  NO_DEFAULT_PATH)
++FIND_LIBRARY(OpenBLAS_LIB_DEBUG NAMES openblas_d PATHS ${Open_BLAS_LIB_SEARCH_PATHS}  NO_DEFAULT_PATH)
+ 
+ SET(OpenBLAS_FOUND ON)
+ 
+@@ -82,6 +85,10 @@
+     MESSAGE(STATUS "Could not find OpenBLAS include. Turning OpenBLAS_FOUND off")
+ ENDIF()
+ 
++IF(NOT OpenBLAS_LIB)
++    SET(OpenBLAS_LIB ${OpenBLAS_LIB_DEBUG})
++ENDIF()
++
+ #    Check libraries
+ IF(NOT OpenBLAS_LIB)
+     SET(OpenBLAS_FOUND OFF)
