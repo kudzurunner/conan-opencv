@@ -158,6 +158,7 @@ class OpencvConan(ConanFile):
             self.options["openblas"].visual_studio=True
 
         self.options["openblas"].shared = True
+        self.options["TBB"].shared = True
         self.options["TBB"].tbbmalloc = True
         self.options["jasper"].shared = True
         self.options["libjpeg-turbo"].shared = True
