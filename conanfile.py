@@ -24,6 +24,8 @@ class OpencvConan(ConanFile):
         "with_tiff": [True, False],
         "with_lapack": [True, False],
         "with_protobuf": [True, False],
+        "with_ffmpeg": [True, False],
+        "nonfree": [True, False]
     }
 
     default_options = {
@@ -39,6 +41,8 @@ class OpencvConan(ConanFile):
         "with_tiff": True,
         "with_lapack": True,
         "with_protobuf": True,
+        "with_ffmpeg": False,
+        "nonfree": False
     }
     generators = "cmake"
 
@@ -145,6 +149,8 @@ class OpencvConan(ConanFile):
             self.requires.add('openblas/0.3.5@kudzurunner/stable')
         if self.options.with_protobuf:
             self.requires.add('protobuf/3.5.1@bincrafters/stable')
+        if self.options.with_ffmpeg:
+            self.requires.add('ffmpeg/4.1@bincrafters/stable')
 
 
     def configure(self):
@@ -158,6 +164,12 @@ class OpencvConan(ConanFile):
         self.options["libpng"].shared = True
         self.options["libtiff"].shared = True
         self.options["zlib"].shared = True
+        self.options["ffmpeg"].shared = True
+        if self.options.with_ffmpeg and not self.options.nonfree:
+            self.options["ffmpeg"].x264 = False
+            self.options["ffmpeg"].x265 = False
+            self.options["ffmpeg"].postproc = False
+            self.options["ffmpeg"].fdk_aac = False
 
 
     def source(self):
@@ -261,6 +273,7 @@ class OpencvConan(ConanFile):
         for lib in self.enable_contrib_libs:
             cmake.definitions["BUILD_opencv_{}".format(lib)] = "ON"
 
+        cmake.definitions['OPENCV_ENABLE_NONFREE'] = self.options.nonfree
         cmake.definitions["OPENCV_EXTRA_MODULES_PATH"] = os.path.join(self.source_folder, "opencv_contrib-{}".format(self.version), "modules")
         cmake.definitions["CMAKE_INSTALL_PREFIX"] = "install"
 
@@ -279,7 +292,7 @@ class OpencvConan(ConanFile):
 
     def package_info(self):
         libs = []
-        for name in self.opencv_libs + self.enable_contrib_libs:
+        for name in self.opencv_libs + (self.enable_contrib_libs if self.options.with_cuda else []):
             libs.append("opencv_{}".format(name))
 
         opencv_version_suffix = self.version.replace(".","")
