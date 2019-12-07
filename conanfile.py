@@ -4,7 +4,7 @@ import os
 
 class OpencvConan(ConanFile):
     name = "opencv"
-    version = "4.0.1"
+    version = "4.1.2"
     license = "https://raw.githubusercontent.com/opencv/opencv/master/LICENSE"
     author = "KudzuRunner"
     url = "https://github.com/kudzurunner/conan-opencv"
@@ -31,7 +31,7 @@ class OpencvConan(ConanFile):
     default_options = {
         "fPIC": True,
         "with_ocl": True,
-        "with_cuda": True,
+        "with_cuda": False,
         "with_eigen": True,
         "with_jasper": True,
         "with_jpeg": True,
@@ -130,27 +130,27 @@ class OpencvConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        self.requires.add('zlib/1.2.11@conan/stable')
+        self.requires.add('zlib/1.2.11')
         if self.options.with_eigen:
             self.requires.add('eigen/3.3.7@conan/stable')
         if self.options.with_jasper:
-            self.requires.add('jasper/2.0.14@kudzurunner/stable')
+            self.requires.add('jasper/2.0.16@kudzurunner/stable')
         if self.options.with_jpeg:
-            self.requires.add('libjpeg-turbo/2.0.1@kudzurunner/stable')
+            self.requires.add('libjpeg-turbo/2.0.3@kudzurunner/stable')
         if self.options.with_webp:
-            self.requires.add('libwebp/1.0.0@bincrafters/stable')
+            self.requires.add('libwebp/1.0.3')
         if self.options.with_png:
-            self.requires.add('libpng/1.6.36@bincrafters/stable')
+            self.requires.add('libpng/1.6.37')
         if self.options.with_tbb:
-            self.requires.add('TBB/2019_U3@conan/stable')
+            self.requires.add('tbb/2019_u9')
         if self.options.with_tiff:
-            self.requires.add('libtiff/4.0.9@bincrafters/stable')
+            self.requires.add('libtiff/4.0.9')
         if self.options.with_lapack:
-            self.requires.add('openblas/0.3.5@kudzurunner/stable')
+            self.requires.add('openblas/0.3.7@kudzurunner/stable')
         if self.options.with_protobuf:
             self.requires.add('protobuf/3.5.1@bincrafters/stable')
         if self.options.with_ffmpeg:
-            self.requires.add('ffmpeg/4.1@bincrafters/stable')
+            self.requires.add('ffmpeg/4.2@bincrafters/stable')
 
 
     def configure(self):
